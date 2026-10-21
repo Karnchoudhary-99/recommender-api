@@ -18,6 +18,11 @@ public final class RatingsStore {
     private final List<Rating> all = new ArrayList<>();
 
     public void add(Rating rating) {
+        if (hasRated(rating.userId(), rating.itemId())) {
+            // Re-rating replaces the old value instead of double-counting it.
+            all.removeIf(r -> r.userId().equals(rating.userId())
+                    && r.itemId().equals(rating.itemId()));
+        }
         byUser.computeIfAbsent(rating.userId(), k -> new LinkedHashMap<>())
                 .put(rating.itemId(), rating.value());
         byItem.computeIfAbsent(rating.itemId(), k -> new LinkedHashMap<>())
