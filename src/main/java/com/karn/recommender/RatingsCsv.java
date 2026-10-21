@@ -28,8 +28,8 @@ public final class RatingsCsv {
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     continue;
                 }
-                if (lineNo == 1 && trimmed.startsWith("user")) {
-                    continue; // header row
+                if (trimmed.startsWith("userId,")) {
+                    continue; // header row (may follow comment lines)
                 }
                 String[] parts = trimmed.split(",", -1);
                 if (parts.length != 3) {
