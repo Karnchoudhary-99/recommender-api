@@ -1,0 +1,10 @@
+# Sample item metadata: title + description keywords for the content-based engine.
+# Sci-fi cluster: dune/matrix/blade-runner/arrival; comedy cluster: superbad/hangover/step-brothers.
+itemId,title,description
+dune,Dune,"epic science fiction desert planet spice sandworms chosen one"
+matrix,The Matrix,"science fiction hacker simulated reality machines artificial intelligence"
+blade-runner,Blade Runner,"science fiction replicants future city androids rain noir"
+arrival,Arrival,"science fiction aliens language first contact linguist spacecraft"
+superbad,Superbad,"comedy high school friends party hilarious teenagers"
+hangover,The Hangover,"comedy bachelor party Las Vegas wedding friends chaos"
+step-brothers,Step Brothers,"comedy adult stepbrothers family rivalry slapstick"
