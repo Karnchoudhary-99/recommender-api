@@ -3,8 +3,9 @@ package com.karn.recommender;
 import java.nio.file.Path;
 
 /**
- * Runnable demo: loads the sample ratings, trains all three engines and
- * prints top-5 recommendations for one sci-fi fan (mia) and one comedy
+ * Runnable demo: loads the sample ratings, trains the CF engines, builds
+ * the content-based engine from the sample item catalog, and prints
+ * top-5 recommendations for one sci-fi fan (mia) and one comedy
  * fan (zoe). Usage: {@code CfDemo [path-to-csv] [user]}.
  */
 public final class CfDemo {
@@ -23,11 +24,16 @@ public final class CfDemo {
 
         Recommender userKnn = new UserKnnRecommender(store, 3);
         Recommender itemKnn = new ItemKnnRecommender(store, 3);
+        Recommender content = new ContentRecommender(store,
+                ItemCatalog.load(Path.of("data/sample-items.csv")).texts());
+        Recommender hybrid = new HybridRecommender(store, userKnn, 0.7, content, 0.3);
         for (String user : args.length > 1 ? new String[]{args[1]} : new String[]{"mia", "zoe"}) {
             System.out.println("\nTop recommendations for " + user + ":");
             System.out.println("  user-kNN: " + userKnn.recommend(user, 5));
             System.out.println("  item-kNN: " + itemKnn.recommend(user, 5));
             System.out.println("  MF:       " + mf.recommend(user, 5));
+            System.out.println("  content:  " + content.recommend(user, 5));
+            System.out.println("  hybrid:   " + hybrid.recommend(user, 5));
         }
     }
 }
