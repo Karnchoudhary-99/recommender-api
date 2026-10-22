@@ -11,3 +11,7 @@ jobs:
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v3
       - run: gradle test --offline || gradle test
+      - name: Run evaluation harness on sample data
+        run: |
+          javac -d out $(find src/main/java -name '*.java')
+          java -cp out com.karn.recommender.EvalDemo

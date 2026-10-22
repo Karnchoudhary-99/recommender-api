@@ -13,7 +13,7 @@ compared honestly before it serves traffic.
 - [x] Content-based recommender (TF-IDF item profiles)
 - [x] Hybrid combiner
 - [x] HTTP API
-- [ ] Evaluation harness (precision@k, recall@k, NDCG), README, then public
+- [x] Evaluation harness (precision@k, recall@k, NDCG, RMSE), README, then public
 
 ## Usage
 
@@ -86,6 +86,37 @@ bash examples/api.sh   # curl tour of every route
 Engines: `userknn`, `itemknn`, `content`, `hybrid` (70% user-kNN /
 30% content). Bad input is a 400 with an `error` message, unknown
 routes 404, wrong methods 405.
+
+## Evaluation
+
+`Evaluator` holds out each user's top-rated item (users with fewer
+than 3 ratings stay fully in training), then scores every engine on
+the same split: precision@k, recall@k, NDCG@k (binary relevance,
+log-discounted by rank) and RMSE over the held-out predictions.
+`EvalDemo` runs all five engines and prints the table; CI runs it on
+every push.
+
+```bash
+javac -d out $(find src/main/java -name '*.java')
+java -cp out com.karn.recommender.EvalDemo   # optional: [ratingsCsv] [itemsCsv] [k]
+```
+
+Baseline on the bundled sample data (k = 5, 8 held-out items):
+
+| engine | P@5 | R@5 | NDCG@5 | RMSE |
+| --- | --- | --- | --- | --- |
+| content | 0.200 | 1.000 | 0.954 | 1.717 |
+| hybrid | 0.200 | 1.000 | 0.954 | 1.508 |
+| mf | 0.200 | 1.000 | 0.908 | 1.352 |
+| itemknn | 0.200 | 1.000 | 0.769 | 1.174 |
+| userknn | 0.200 | 1.000 | 0.737 | 1.434 |
+
+Read the numbers honestly: the sample has only 7 items, so every
+engine's top-5 covers all of a user's unseen items and recall
+saturates at 1.0 — the ranking signal is in NDCG (content/hybrid
+rank the held-out item highest) and in RMSE (item-kNN predicts the
+held-out rating closest). On a larger dataset these same metrics
+separate the engines properly.
 
 ## License
 
