@@ -12,7 +12,7 @@ compared honestly before it serves traffic.
 - [x] Collaborative filtering (user/item k-NN, matrix factorisation)
 - [x] Content-based recommender (TF-IDF item profiles)
 - [x] Hybrid combiner
-- [ ] HTTP API
+- [x] HTTP API
 - [ ] Evaluation harness (precision@k, recall@k, NDCG), README, then public
 
 ## Usage
@@ -62,6 +62,30 @@ keywords per item). The demo prints content and hybrid lines alongside
 the CF engines: content also ranks `arrival` first for `mia` (3.29 vs
 3.00 for `step-brothers`), and a 70/30 user-kNN/content hybrid keeps
 `arrival` on top.
+
+## HTTP API
+
+Zero-dependency, on the JDK's built-in `HttpServer` — no framework.
+`ApiServer.handle()` is pure (method + path + query + body in, status
++ JSON out), so the routing is unit-tested without binding a port;
+`start()` is only the thin socket adapter.
+
+```bash
+javac -d out $(find src/main/java -name '*.java')
+java -cp out com.karn.recommender.ApiMain --port 8080
+bash examples/api.sh   # curl tour of every route
+```
+
+| Route | What it does |
+| --- | --- |
+| `GET /health` | Status, loaded rating count, engine names |
+| `GET /v1/recommend?user=mia&n=5&engine=hybrid` | Top-n unseen items, best first (`engine` defaults to `hybrid`) |
+| `GET /v1/predict?user=mia&item=arrival&engine=itemknn` | One predicted rating |
+| `POST /v1/ratings` | `{"userId","itemId","rating"}` (1-5); 201. Replaces a previous rating for the same pair, and item-kNN's similarity cache is rebuilt so the write is visible to the next request |
+
+Engines: `userknn`, `itemknn`, `content`, `hybrid` (70% user-kNN /
+30% content). Bad input is a 400 with an `error` message, unknown
+routes 404, wrong methods 405.
 
 ## License
 
